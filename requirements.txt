@@ -1,0 +1,29 @@
+# Core Data Science & Manipulation
+pandas>=2.0.0
+numpy>=1.24.0
+scipy>=1.10.0
+pyarrow>=14.0.0
+
+# Visualization & EDA
+matplotlib>=3.7.0
+seaborn>=0.12.0
+plotly>=5.18.0
+
+# Machine Learning & Modeling
+scikit-learn>=1.3.0
+lightgbm>=4.0.0
+xgboost>=2.0.0
+catboost>=1.2.0
+
+# Hyperparameter Optimization & Explainability
+optuna>=3.4.0
+shap>=0.43.0
+
+# Geospatial & Distance Utilities
+geopy>=2.4.0
+
+# Jupyter Environment
+jupyterlab>=4.0.0
+ipywidgets>=8.1.0
+tqdm>=4.66.0
+requests>=2.31.0

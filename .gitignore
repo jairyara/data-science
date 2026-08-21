@@ -1,0 +1,68 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# C extensions
+*.so
+
+# Distribution / packaging
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual Environments
+venv/
+.venv/
+env/
+ENV/
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+*/.ipynb_checkpoints/*
+
+# macOS system files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# IDEs and editors
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Large datasets & raw data downloads
+data/selected/**/raw/*
+!data/selected/**/raw/.gitkeep
+data/evaluation/**/raw/*
+!data/evaluation/**/raw/.gitkeep
+*.csv
+*.csv.gz
+*.tsv
+*.parquet
+*.feather
+*.zip
+*.tar.gz
+*.7z
+.tmp*
+
+# Reports & generated figures (optional to keep or track selectively)
+reports/figures/
