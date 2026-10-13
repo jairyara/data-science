@@ -144,3 +144,103 @@ def clean_airbnb_dataset(
     df_clean["log_price"] = np.log1p(df_clean["price_usd"])
 
     return df_clean
+
+
+def audit_dataset(df: pd.DataFrame, incomplete_threshold: int = 15) -> dict:
+    """
+    Ejecuta una auditoría integral de calidad de datos replicando y extendiendo
+    las técnicas diagnósticas de clase:
+    - Dimensiones y tipos
+    - Filas 100% vacías
+    - Filas incompletas por umbral
+    - Duplicados totales y por clave primaria
+    - Resumen y porcentaje de valores nulos
+    """
+    total_rows, total_cols = df.shape
+    empty_rows = int(df.isna().all(axis=1).sum())
+    incomplete_rows = int((df.notna().sum(axis=1) <= incomplete_threshold).sum())
+    total_duplicates = int(df.duplicated().sum())
+    id_duplicates = int(df["id"].duplicated().sum()) if "id" in df.columns else 0
+
+    missing_series = df.isna().sum()
+    missing_pct = (df.isna().mean() * 100).round(2)
+    missing_summary = (
+        pd.DataFrame({
+            "columna": df.columns,
+            "tipo": df.dtypes.astype(str),
+            "nulos_conteo": missing_series.values,
+            "nulos_porcentaje": missing_pct.values,
+        })
+        .sort_values(by="nulos_porcentaje", ascending=False)
+        .reset_index(drop=True)
+    )
+
+    return {
+        "total_rows": total_rows,
+        "total_cols": total_cols,
+        "empty_rows": empty_rows,
+        "incomplete_rows": incomplete_rows,
+        "total_duplicates": total_duplicates,
+        "id_duplicates": id_duplicates,
+        "missing_summary": missing_summary,
+    }
+
+
+def drop_empty_rows(df: pd.DataFrame) -> pd.DataFrame:
+    """Elimina filas que estén completamente vacías (todas las columnas NaN)."""
+    return df.dropna(how="all").copy()
+
+
+def filter_incomplete_rows(df: pd.DataFrame, min_valid_cols: int = 15) -> pd.DataFrame:
+    """Filtra y remueve filas con un número insuficiente de columnas con datos válidos."""
+    return df[df.notna().sum(axis=1) > min_valid_cols].copy()
+
+
+def remove_duplicates(df: pd.DataFrame, subset: Optional[List[str]] = None) -> pd.DataFrame:
+    """Detecta y elimina registros duplicados con reporte en consola."""
+    prev_len = len(df)
+    df_dedup = df.drop_duplicates(subset=subset).copy()
+    diff = prev_len - len(df_dedup)
+    if diff > 0:
+        print(f"🗑️ Se eliminaron {diff:,} registros duplicados (subset={subset}).")
+    else:
+        print("✅ No se detectaron duplicados para el criterio especificado.")
+    return df_dedup
+
+
+def normalize_categorical_features(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Estandariza variables categóricas y de texto:
+    - Remueve espacios en blanco redundantes
+    - Unifica mayúsculas/minúsculas
+    - Mapea flags 't' y 'f' a booleanos estándar
+    """
+    df_norm = df.copy()
+
+    # Columnas booleanas en formato de texto 't' / 'f'
+    bool_text_cols = [
+        "host_is_superhost",
+        "host_has_profile_pic",
+        "host_identity_verified",
+        "has_availability",
+        "instant_bookable",
+    ]
+    for col in bool_text_cols:
+        if col in df_norm.columns:
+            df_norm[col] = (
+                df_norm[col]
+                .astype(str)
+                .str.strip()
+                .str.lower()
+                .map({"t": 1, "true": 1, "1": 1, "f": 0, "false": 0, "0": 0})
+                .fillna(0)
+                .astype(int)
+            )
+
+    # Estandarización de textos clave
+    for col in ["room_type", "neighbourhood_group_cleansed"]:
+        if col in df_norm.columns:
+            df_norm[col] = df_norm[col].astype(str).str.strip().str.title()
+
+    return df_norm
+
